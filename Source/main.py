@@ -8,6 +8,7 @@ filename = 'test.csv'
 # + list[0] = {row1, row2}, nghia la tai row1, row2 hang thu 0 mang gia tri rong
 # + list[1] = {}, nghia la tai hang thu 1 khong co gia tri nao rong
 
+from pandakungfu import Pandakungfu as pdf
 
 def get_list_col_name(table):
     return [key for key in table[0].keys()]
@@ -56,15 +57,15 @@ def replace_col(table, col_name, new_col):
         
 
 def mean(table, col_name):
-    return statistics.mean([int(x) for x in get_value_of_col(table, col_name) if x != ''])
+    return statistics.mean([float(x) for x in get_value_of_col(table, col_name) if x != ''])
 
 
 def median(table, col_name):
-    return statistics.median_grouped([int(x) for x in get_value_of_col(table, col_name) if x != ''])
+    return statistics.median_grouped([float(x) for x in get_value_of_col(table, col_name) if x != ''])
 
 
 def mode(table, col_name):
-    return choice(statistics.multimode([int(x) for x in get_value_of_col(table, col_name) if x != '']))
+    return choice(statistics.multimode([float(x) for x in get_value_of_col(table, col_name) if x != '']))
 
 
 def get_full_col_with_mean(table, col_name):
@@ -124,17 +125,33 @@ def remove_duplicate_row(table):
     return [dict(t) for t in {tuple(row.items()) for row in table}]
 
 
-with open(filename) as file:
-    spamreader = read_the_csv(file)
-    reader = list(spamreader)
-    list_missing_data = get_list_missing_data(reader)
+def normalize_by_minmax(table, col_name, new_min = 0, new_max = 1):
+    list_value_col = get_value_of_col(table, col_name)
+    
+    _min, _max = float(min(list_value_col, key=float)), float(max(list_value_col, key=float))
+    return replace_col(table, col_name, [str((float(x) - _min)*(new_max - new_min)/(_max - _min) + new_min)
+                                         for x in list_value_col])
+    
+    
+
+def normalize_by_zcore(table, name_col):
+    pass
+
+
+
+
+# with open(filename) as file:
+#     spamreader = read_the_csv(file)
+#     reader = list(spamreader)
+#     list_missing_data = get_list_missing_data(reader)
     # display_list_missing_data(list_missing_data)
     # Chuc nang 1
     # print('Cac cot cua ')
     # print('Cac cot bi thieu du lieu: ' + str(list_col_less_data(list_missing_data)))
     # print('So dong bi thieu du lieu: ' + str(get_number_of_row_less_data(list_missing_data)))
+df = pdf(filename)
+
     # display_list_missing_data(list_missing_data)
-     
     # print(get_value_of_col(reader, col_name='sotien'))
     # print(mean(reader, col_name='sotien'))
     # print(median(reader, col_name='sotien'))
@@ -155,6 +172,8 @@ with open(filename) as file:
     # reader = remove_row_by_percent_missing(reader, 0.5)
     # reader = remove_col_by_percent_missing(reader, 0.2)
     # display_dataframe(reader)
-
-    reader = remove_duplicate_row(reader)
-    display_dataframe(reader)
+    # reader = get_full_col_with_mean(reader, 'sotien')
+    # # display_dataframe(reader)
+    # reader = normalize_by_minmax(reader, col_name='sotien')
+    # display_dataframe(reader)
+    
