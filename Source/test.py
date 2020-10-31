@@ -1,6 +1,9 @@
 from collections import Counter
 from statistics import multimode
-
+import pandas as pd
+import os
+rows, columns = os.popen('stty size', 'r').read().split()
+print(rows, columns)
 list_dict = [{'mssv': '18120507', 'ten': 'Cong Phu', 'gioitinh': 'Nam', 'lop': '18ctt4', 'sotien': '30'}, 
              {'mssv': '18120517', 'ten': 'Binh Phuong', 'gioitinh': 'Nam', 'lop': '18ctt4', 'sotien': '30'}, 
              {'mssv': '18120516', 'ten': 'Trong Phuong', 'gioitinh': '', 'lop': '18ctt4', 'sotien': ''}, 
@@ -11,7 +14,7 @@ list_dict = [{'mssv': '18120507', 'ten': 'Cong Phu', 'gioitinh': 'Nam', 'lop': '
              {'mssv': '18120517', 'ten': 'Binh Phuong', 'gioitinh': 'Nam', 'lop': '18ctt4', 'sotien': '30'}, 
              {'mssv': '18120626', 'ten': 'Quang Truong', 'gioitinh': '', 'lop': '', 'sotien': ''}]
              
-
+a = "      Id  MSSubClass MSZoning  LotFrontage  LotArea Street Alley LotShape  ... Fence MiscFeature MiscVal MoSold YrSold SaleType SaleCondition SalePrice"
 class A:
     def __init__(self,x = 'a',y = 'b'):
         self.a = x
@@ -38,6 +41,9 @@ class A:
         return A(self['1'],self['2'])
     
     
-obj1 = A.create('1','2')
-print(obj1)
+# obj1 = A.create('1','2')
+# print(obj1)
 
+df = pd.read_csv('house-prices.csv')
+print(df)
+print(len(a))

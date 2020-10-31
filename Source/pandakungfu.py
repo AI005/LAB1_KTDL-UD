@@ -7,6 +7,7 @@ filename = 'test.csv'
 # vi du:
 # + list[0] = {row1, row2}, nghia la tai row1, row2 hang thu 0 mang gia tri rong
 # + list[1] = {}, nghia la tai hang thu 1 khong co gia tri nao rong
+import os
 
 class Pandakungfu:
     
@@ -43,7 +44,7 @@ class Pandakungfu:
     # Chuc nang 2
     def get_number_of_row_less_data(self):
         list_missing_data = self.get_list_missing_data()
-        return len(list_missing_data)
+        return list_missing_data.count([])
 
     @staticmethod
     def read_csv(input_file):
@@ -85,44 +86,56 @@ class Pandakungfu:
 
 
     def set_col_with_median(self, col_name): #this function is
-        median_value = str(self.median(col_name))
+        median_value = str(self.get_median(col_name))
         new_col = list(map(lambda a: a if a != '' else median_value, self[col_name]))
         self.replace_col(col_name, new_col)
 
 
-    def get_full_col_with_mode(table, col_name):
+    def set_col_with_mode(self, col_name):
         mode_value = str(self.get_mode(col_name))
         new_col = list(map(lambda a: a if a != '' else mode_value, self[col_name]))
         self.replace_col(col_name, new_col)
 
 
-    def display(self):
-        print(self.dataframe)
-        width = 13
-        list_col_name = self.get_list_col_name()
-        header = 'print('
-        for a in list_col_name:
-            header += "'|" + a + "'" ".ljust("+str(width) +")+"
+    def __str__(self):
+        string_output = '\n'.join(list(map(str, self.dataframe)))
+        return string_output
+    
+        # width = 13
+        # list_col_name = self.get_list_col_name()
+        # header = 'print('
+        # for a in list_col_name:
+        #     header += "'|" + a + "'" ".ljust("+str(width) +")+"
 
-        header = header[0:-1]    
-        header += ")"
-        eval(header)
+        # header = header[0:-1]    
+        # header += ")"
+        # eval(header)
 
-        #Print data
-        for row in self.dataframe:
-            cmd = 'print('
-            for key, value in row.items():
-                cmd += "'|" + value + "'" ".ljust("+ str(width) +")+"
-            cmd = cmd[0:-1]
-            cmd += ")"
-            eval(cmd)
-
-
-    def remove_row_by_percent_missing(percent = 0.5):
+        # #Print data
+        # for row in self.dataframe:
+        #     cmd = 'print('
+        #     for key, value in row.items():
+        #         cmd += "'|" + value + "'" ".ljust("+ str(width) +")+"
+        #     cmd = cmd[0:-1]
+        #     cmd += ")"
+        #     eval(cmd)
+        # Get width, height of terminal
+        # table = ""
+        # width = 10
+        # width_ter, height_ter = os.popen('stty size', 'r').read().split()
+        # line = "     "
+        # list_col_name = self.get_list_col_name()
+        # line += "|".join([a.rjust(width) for a in list_col_name])
+        # while true:
+        #     if len(line) >= width_ter:
+                
+        
+        
+    def remove_row_by_percent_missing(self, percent=0.5):
         self.dataframe = list(filter(lambda row: Counter(row.values())['']/ len(row) <= percent, self.dataframe))[:]
 
 
-    def remove_col_by_percent_missing(percent = 0.5):
+    def remove_col_by_percent_missing(self, percent=0.5):
         list_col_remove = [col_name for col_name in self.get_list_col_name() 
                            if Counter(self[col_name])['']/len(self.dataframe) >= percent]
 
@@ -132,7 +145,7 @@ class Pandakungfu:
 
 
     def remove_duplicate_row(self):
-        return [dict(t) for t in {tuple(row.items()) for row in self.dataframe}]
+        self.dataframe = [dict(t) for t in {tuple(row.items()) for row in self.dataframe}]
 
 
     def normalize_by_minmax(self, col_name, new_min = 0, new_max = 1):

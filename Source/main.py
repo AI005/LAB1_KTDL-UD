@@ -1,179 +1,64 @@
-import csv
-import statistics
-from random import choice
-from collections import Counter
-filename = 'test.csv'
-# Tra ve list cac key co gia tri rong theo index
-# vi du:
-# + list[0] = {row1, row2}, nghia la tai row1, row2 hang thu 0 mang gia tri rong
-# + list[1] = {}, nghia la tai hang thu 1 khong co gia tri nao rong
-
 from pandakungfu import Pandakungfu as pdf
+import sys
 
-def get_list_col_name(table):
-    return [key for key in table[0].keys()]
+
+if __name__ =="__main__":
+    argv = sys.argv
+    args = len(argv)
+    print(sys.argv)
     
-def get_list_missing_data(table):
-    return [[key for key, value in row.items() if value == ''] for row in table]
-
-
-def display_list_missing_data(list_missing_data):
-    for index, keys in enumerate(list_missing_data):
-        if len(keys) != 0:
-            print('Hang ' + str(index) + ' thieu du lieu cua cac cot ' + str(keys))
-
-
-# Chuc nang 1
-def list_col_less_data(list_missing_data):
-    result = set()
-    for element in list_missing_data:
-        for colname in element:
-            result.add(colname)
-    return result
-
-
-# Chuc nang 2
-def get_number_of_row_less_data(list_missing_data):
-    return len(list_missing_data)
-
-
-def read_the_csv(input_file):
-    input_file.seek(0)
-    csv_reader = csv.DictReader(input_file)
-    for row in csv_reader:
-        yield row
-
-
-# chuc nang 3
-def get_value_of_col(table, col_name):
-    return [row[col_name] for row in table]
-
-def replace_col(table, col_name, new_col):
-    new_table = table.copy()
-    for i in range(0, len(table)):
-        new_table[i][col_name] = new_col[i]
-    return new_table
-  
-        
-
-def mean(table, col_name):
-    return statistics.mean([float(x) for x in get_value_of_col(table, col_name) if x != ''])
-
-
-def median(table, col_name):
-    return statistics.median_grouped([float(x) for x in get_value_of_col(table, col_name) if x != ''])
-
-
-def mode(table, col_name):
-    return choice(statistics.multimode([float(x) for x in get_value_of_col(table, col_name) if x != '']))
-
-
-def get_full_col_with_mean(table, col_name):
-    mean_value = str(mean(table, col_name))
-    new_col = list(map(lambda a: a if a != '' else mean_value, get_value_of_col(table, col_name)))
-    return replace_col(table, col_name, new_col)
-
-
-
-def get_full_col_with_median(table, col_name): #this function is
-    median_value = str(median(table, col_name))
-    new_col = list(map(lambda a: a if a != '' else median_value, get_value_of_col(table, col_name)))
-    return replace_col(table, col_name, new_col)
-
-def get_full_col_with_mode(table, col_name):
-    mode_value = str(mode(table, col_name))
-    new_col = list(map(lambda a: a if a != '' else mode_value, get_value_of_col(table, col_name)))
-    return replace_col(table, col_name, new_col)
-
-
-def display_dataframe(table):
-    width = 13
-    list_col_name = get_list_col_name(table)
-    header = 'print('
-    for a in list_col_name:
-        header += "'|" + a + "'" ".ljust("+str(width) +")+"
-    
-    header = header[0:-1]    
-    header += ")"
-    eval(header)
-    
-    #Print data
-    for row in table:
-        cmd = 'print('
-        for key, value in row.items():
-            cmd += "'|" + value + "'" ".ljust("+ str(width) +")+"
-        cmd = cmd[0:-1]
-        cmd += ")"
-        eval(cmd)
-
-def remove_row_by_percent_missing(table, percent = 0.5):
-    return list(filter(lambda row: Counter(row.values())['']/ len(row) <= percent, table))[:]
-    
+    try:
+        filename = argv[1]
+        df = pdf(filename)
+    except:
+        print("Error filename input")
     
 
-def remove_col_by_percent_missing(table, percent = 0.5):
-    list_col_remove = [col_name for col_name in get_list_col_name(table) 
-                       if Counter(get_value_of_col(table, col_name))['']/len(table) >= percent]
+    if args == 3:
+        method = argv[2]
+        if method == "--method=list-missing-col":
+            print(df.get_list_col_less_data())
+        elif method == "--method=get-number-missing-row":
+            print('number of missing-row:',  df.get_number_of_row_less_data())
+        elif method == "--method=remove-duplicate":
+            df.remove_duplicate_row()
+        else:
+            print("no option" + method)
+    elif args == 4:
     
-    for row in table:
-        for name_col in list_col_remove:
-            del row[name_col]
+        method = argv[2]
+        option = argv[3]
+        if method == "--method=remove-row-missing":
+            df.remove_row_by_percent_missing(percent=float(option))
+            print(df)
+        elif method == "--method=remove-col-missing":
+            df.remove_col_by_percent_missing(percent=float(option))
+            print(df)
+        else:
+            print("no option" + method)
+    elif args == 5:
+        method = argv[2]
+        option1, option2 = argv[3], argv[4]
+        if method=="-method=fill-missing-value":
+            if option1=="--mean":
+                if option2 == "all":
+                    pass
+                else:
+                    df.set_col_with_mean(option2)
+            elif option1=="--median":
+                if option2 == "all":
+                    pass
+                else:
+                    df.set_col_with_median(option2)
+            elif option1=="--mode":
+                if option2 == "all":
+                    pass
+                else:
+                    df.set_col_with_mode(option2)
+            
+        else:
+            print("no option" + method)
+    else:
+        pass
     
-    return table
-
-def remove_duplicate_row(table):
-    return [dict(t) for t in {tuple(row.items()) for row in table}]
-
-
-def normalize_by_minmax(table, col_name, new_min = 0, new_max = 1):
-    list_value_col = get_value_of_col(table, col_name)
-    
-    _min, _max = float(min(list_value_col, key=float)), float(max(list_value_col, key=float))
-    return replace_col(table, col_name, [str((float(x) - _min)*(new_max - new_min)/(_max - _min) + new_min)
-                                         for x in list_value_col])
-    
-    
-
-def normalize_by_zcore(table, name_col):
-    pass
-
-
-
-
-# with open(filename) as file:
-#     spamreader = read_the_csv(file)
-#     reader = list(spamreader)
-#     list_missing_data = get_list_missing_data(reader)
-    # display_list_missing_data(list_missing_data)
-    # Chuc nang 1
-    # print('Cac cot cua ')
-    # print('Cac cot bi thieu du lieu: ' + str(list_col_less_data(list_missing_data)))
-    # print('So dong bi thieu du lieu: ' + str(get_number_of_row_less_data(list_missing_data)))
-df = pdf(filename)
-
-    # display_list_missing_data(list_missing_data)
-    # print(get_value_of_col(reader, col_name='sotien'))
-    # print(mean(reader, col_name='sotien'))
-    # print(median(reader, col_name='sotien'))
-    # print(mode(reader, col_name='sotien'))
-    # # get_full_col_with_mean(reader, col_name='sotien')
-    # # print(reader)
-    # # print(get_full_col_with_median(reader, col_name='sotien'))
-    # # print(get_full_col_with_mode(reader, col_name='sotien'))
-    # reader = get_full_col_with_median(reader, col_name='sotien')
-    # display_dataframe(reader)
-    
-    # print(get_list_col_name(reader))
-    # width = 60
-    # print('| mssv'.ljust(width) + '| ten'.ljust(width) + '| gioi tinh'.ljust(width) + '| lop'.ljust(width) + '| sotien'.ljust(width))
-    # print('18120507'.center(width) + 'Cong Phu'.center(width) + 'Nam'.center(width) +'18ctt4'.center(width) + '30'.center(width))
-    # display_dataframe(reader)
-    # display_dataframe(reader)
-    # reader = remove_row_by_percent_missing(reader, 0.5)
-    # reader = remove_col_by_percent_missing(reader, 0.2)
-    # display_dataframe(reader)
-    # reader = get_full_col_with_mean(reader, 'sotien')
-    # # display_dataframe(reader)
-    # reader = normalize_by_minmax(reader, col_name='sotien')
-    # display_dataframe(reader)
     
