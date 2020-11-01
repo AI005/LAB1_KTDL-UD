@@ -46,15 +46,20 @@ class Pandakungfu:
         list_missing_data = self.get_list_missing_data()
         return list_missing_data.count([])
 
+    #Read file csv as list of Dict
     @staticmethod
     def read_csv(input_file):
         input_file.seek(0)
         csv_reader = csv.DictReader(input_file)
         for row in csv_reader:
             yield row
-
-
-    # chuc nang 3 
+    
+    #Write file csv from list of Dict
+    def write_csv(self, filename):
+        with open('new_test.csv', 'w') as file:
+            writer = csv.DictWriter(file,fieldnames=self.get_list_col_name())
+            writer.writeheader()
+            writer.writerows(self.dataframe)
 
     # get list values of col = col_names
     def __getitem__(self, col_name): 
@@ -66,37 +71,51 @@ class Pandakungfu:
             self.dataframe[i][col_name] = new_col[i]
     
 
-
     def get_mean(self, col_name):
-        return statistics.mean([float(x) for x in self[col_name] if x != ''])
+        try:
+            return statistics.mean([float(x) for x in self[col_name] if x != ''])
+        except:
+            print("type's" + col_name + "is not numeric")
 
 
     def get_median(self, col_name):
-        return statistics.median_grouped([float(x) for x in self[col_name] if x != ''])
+        try:
+            return statistics.median_grouped([float(x) for x in self[col_name] if x != ''])
+        except:
+            print("type's" + col_name + "is not numeric")
 
 
     def get_mode(self, col_name):
-        return choice(statistics.multimode([float(x) for x in self[col_name] if x != '']))
+        return choice(statistics.multimode([x for x in self[col_name] if x != '']))
 
 
-    def set_col_with_mean(self, col_name):
-        mean_value = str(self.get_mean(col_name))
-        new_col = list(map(lambda a: a if a != '' else mean_value, self[col_name]))
+    def fill_missing_value_of_col(self, col_name, type='mode'):
+        if type == 'mean':
+            value = str(self.get_mean(col_name))
+        elif type == 'median':
+            value = str(self.get_median(col_name))        
+        elif type == 'mode':
+            value = self.get_mode(col_name)
+        else:
+            raise Exception('missing argument-type')
+        
+        new_col = list(map(lambda a: a if a != '' else value, self[col_name]))
         self.replace_col(col_name, new_col)
-
-
-    def set_col_with_median(self, col_name): #this function is
-        median_value = str(self.get_median(col_name))
-        new_col = list(map(lambda a: a if a != '' else median_value, self[col_name]))
-        self.replace_col(col_name, new_col)
-
-
-    def set_col_with_mode(self, col_name):
-        mode_value = str(self.get_mode(col_name))
-        new_col = list(map(lambda a: a if a != '' else mode_value, self[col_name]))
-        self.replace_col(col_name, new_col)
-
-
+    
+    
+    def is_numeric(self, col_name):
+        return all(map(lambda a: True if a == '' or str.isnumeric(a) else False, self[col_name]))
+            
+                       
+    # fill all missing value with mean, median, mode
+    def fill_all_missing(self, type='mode'):
+        list_name = self.get_list_col_less_data()
+        for col_name in list_name:
+            if self.is_numeric(col_name):
+                self.fill_missing_value_of_col(col_name, type)
+            else:
+                self.fill_missing_value_of_col(col_name,type='mode')
+            
     def __str__(self):
         string_output = '\n'.join(list(map(str, self.dataframe)))
         return string_output
@@ -148,13 +167,16 @@ class Pandakungfu:
         self.dataframe = [dict(t) for t in {tuple(row.items()) for row in self.dataframe}]
 
 
+    def get_min_max(self, col_name):
+        pass
+    
     def normalize_by_minmax(self, col_name, new_min = 0, new_max = 1):
         list_value_col = self[col_name]
 
         _min, _max = float(min(list_value_col, key=float)), float(max(list_value_col, key=float))
-        self.replace_col(self.dataframe, col_name, [str((float(x) - _min)*(new_max - new_min)/(_max - _min) + new_min)
-                                             for x in list_value_col])
-
+        self.replace_col(self.dataframe, col_name, 
+                         [str((float(x) - _min)*(new_max - new_min)/(_max - _min) + new_min) 
+                          for x in list_value_col])
 
     def normalize_by_zcore(table, name_col):
         pass

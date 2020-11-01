@@ -13,52 +13,63 @@ if __name__ =="__main__":
     except:
         print("Error filename input")
     
-
+    method = argv[2]
     if args == 3:
-        method = argv[2]
+        # Chuc nang 1: Liet ke cac cot bi thieu du lieu
         if method == "--method=list-missing-col":
             print(df.get_list_col_less_data())
+        # Chuc nang 2: Dem so dong bi thieu du lieu
         elif method == "--method=get-number-missing-row":
             print('number of missing-row:',  df.get_number_of_row_less_data())
-        elif method == "--method=remove-duplicate":
-            df.remove_duplicate_row()
+        # Chuc nang 6: Xoa cac mau bi trung lap
         else:
             print("no option" + method)
     elif args == 4:
-    
-        method = argv[2]
+        filename_out = argv[3]
+        if method == "--method=remove-duplicate":
+            df.remove_duplicate_row()
+            df.write_csv(fileout)
+        
+    elif args == 5:
         option = argv[3]
+        filename_out = argv[4]
+        # Chuc nang 4: Xoa cac dong bi thieu du lieu voi nguong ti le cho truoc
         if method == "--method=remove-row-missing":
             df.remove_row_by_percent_missing(percent=float(option))
-            print(df)
+            df.write_csv(fileout)
+        # Chuc nang 5: Xoa cac cot bi thieu du lieu voi nguong ti le cho truoc
         elif method == "--method=remove-col-missing":
             df.remove_col_by_percent_missing(percent=float(option))
-            print(df)
+            df.write_csv(fileout)
         else:
             print("no option" + method)
-    elif args == 5:
-        method = argv[2]
+    elif args == 6:
         option1, option2 = argv[3], argv[4]
+        filename_out = argv[5]
+        #Chuc nang 3
         if method=="-method=fill-missing-value":
-            if option1=="--mean":
-                if option2 == "all":
-                    pass
-                else:
-                    df.set_col_with_mean(option2)
-            elif option1=="--median":
-                if option2 == "all":
-                    pass
-                else:
-                    df.set_col_with_median(option2)
-            elif option1=="--mode":
-                if option2 == "all":
-                    pass
-                else:
-                    df.set_col_with_mode(option2)
-            
-        else:
+            #ex: python3 main.py test.csv -method=fill-missing-value --mean $all
+            func = option1[2:] #ex: --mean => mean
+            if option2 == "$all":
+                df.fill_all_missing(func)
+            else:
+                df.fill_missing_value_of_col(option2, func)
+
+            df.write_csv(filename_out)
+
+        else7
             print("no option" + method)
+    elif args == 6:
+        option1, option2, option3 = argv[3:-1]
+        filename_out = argv[-1]
+        if method=="-method=normalize-min-max":
+            df.normalize_by_minmax(option3, option1, option2)
+            df.write_csv(fileout)
+        else:
+            print("no option " + method)
+            
     else:
         pass
     
-    
+    #python3 main.py test.csv -method=normalize-min-max 0 1 "col_name"
+    #python3 main.py test.csv -method=normalize-z-score
