@@ -2,13 +2,32 @@ import csv
 import statistics
 from random import choice
 from collections import Counter
-filename = 'test.csv'
-# Tra ve list cac key co gia tri rong theo index
-# vi du:
-# + list[0] = {row1, row2}, nghia la tai row1, row2 hang thu 0 mang gia tri rong
-# + list[1] = {}, nghia la tai hang thu 1 khong co gia tri nao rong
 import os
+from math import sqrt
 
+def mean(list_data):
+    return sum(list_data)/len(list_data)
+
+
+def median(list_data):
+    data = sorted(list_data)
+    n = len(list_data)
+    if n % 2 == 1:
+        return list_data[n//2]
+    else:
+        i = n//2
+        return (list_data[i - 1] + list_data[i])/2
+
+def mode(list_data):
+    result = list_data[0]
+    for d in list_data:
+        if list_data.count(d) > list_data.count(result):
+            result = d
+    return result
+
+def stdev(list_data):
+    mu = mean(list_data)
+    return sqrt(sum([(point-mu)**2 for point in list_data])/len(list_data))
 class Pandakungfu:
     
     def __init__(self, filename):
@@ -44,7 +63,7 @@ class Pandakungfu:
     # Chuc nang 2
     def get_number_of_row_less_data(self):
         list_missing_data = self.get_list_missing_data()
-        return list_missing_data.count([])
+        return len(list_missing_data) - list_missing_data.count([])
 
     #Read file csv as list of Dict
     @staticmethod
@@ -73,20 +92,20 @@ class Pandakungfu:
 
     def get_mean(self, col_name):
         try:
-            return statistics.mean([float(x) for x in self[col_name] if x != ''])
+            return mean([float(x) for x in self[col_name] if x != ''])
         except:
             print("type's" + col_name + "is not numeric")
 
 
     def get_median(self, col_name):
         try:
-            return statistics.median_grouped([float(x) for x in self[col_name] if x != ''])
+            return median([float(x) for x in self[col_name] if x != ''])
         except:
             print("type's" + col_name + "is not numeric")
 
 
     def get_mode(self, col_name):
-        return choice(statistics.multimode([x for x in self[col_name] if x != '']))
+        return mode([x for x in self[col_name] if x != ''])
 
 
     def fill_missing_value_of_col(self, col_name, type='mode'):
@@ -115,38 +134,11 @@ class Pandakungfu:
                 self.fill_missing_value_of_col(col_name, type)
             else:
                 self.fill_missing_value_of_col(col_name,type='mode')
+  
             
     def __str__(self):
         string_output = '\n'.join(list(map(str, self.dataframe)))
         return string_output
-    
-        # width = 13
-        # list_col_name = self.get_list_col_name()
-        # header = 'print('
-        # for a in list_col_name:
-        #     header += "'|" + a + "'" ".ljust("+str(width) +")+"
-
-        # header = header[0:-1]    
-        # header += ")"
-        # eval(header)
-
-        # #Print data
-        # for row in self.dataframe:
-        #     cmd = 'print('
-        #     for key, value in row.items():
-        #         cmd += "'|" + value + "'" ".ljust("+ str(width) +")+"
-        #     cmd = cmd[0:-1]
-        #     cmd += ")"
-        #     eval(cmd)
-        # Get width, height of terminal
-        # table = ""
-        # width = 10
-        # width_ter, height_ter = os.popen('stty size', 'r').read().split()
-        # line = "     "
-        # list_col_name = self.get_list_col_name()
-        # line += "|".join([a.rjust(width) for a in list_col_name])
-        # while true:
-        #     if len(line) >= width_ter:
                 
         
         
@@ -167,16 +159,37 @@ class Pandakungfu:
         self.dataframe = [dict(t) for t in {tuple(row.items()) for row in self.dataframe}]
 
 
+    #return set(min, max)
     def get_min_max(self, col_name):
-        pass
-    
+        if self.is_numeric(col_name):
+            return (min([float(x) for x in self[col_name] if x != '']), 
+                    max([float(x) for x in self[col_name] if x != '']))
+        else:
+            raise Exception("cannot get minmax of non-numeric")
+        
+        
     def normalize_by_minmax(self, col_name, new_min = 0, new_max = 1):
-        list_value_col = self[col_name]
-
-        _min, _max = float(min(list_value_col, key=float)), float(max(list_value_col, key=float))
-        self.replace_col(self.dataframe, col_name, 
-                         [str((float(x) - _min)*(new_max - new_min)/(_max - _min) + new_min) 
-                          for x in list_value_col])
-
-    def normalize_by_zcore(table, name_col):
+        if new_min >= new_max:
+            raise Exception('erorr: new_min >= new_max')
+        
+        _min, _max = self.get_min_max(col_name)
+        new_col = list(map(lambda a: a if a == '' else str((float(a) - _min)*(new_max - new_min)/(_max - _min) + new_min),
+                       self[col_name]))
+        
+        self.replace_col(col_name, new_col)
+        
+        
+    def get_stdev(self, col_name):
+        try:
+            return stdev([float(x) for x in self[col_name] if x != ''])
+        except:
+            print("type's" + col_name + "is not numeric")
+    
+    def normalize_by_zcore(self, col_name):
+        stdev = self.get_stdev(col_name)
+        mean = self.get_mean(col_name)
+        new_col = list(map(lambda a: a if a == '' else str((float(a) - mean)/stdev), self[col_name]))
+        self.replace_col(col_name, new_col)
+        
+    def calculate_express(self, express):
         pass
