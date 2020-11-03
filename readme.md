@@ -52,3 +52,9 @@ giá trị ở mỗi mẫu là tích của thuộc tính width và height trong 
 kiện cả 2 giá trị width và height đều không bị thiếu, trong trường hợp bị thiếu thì giá trị
 biểu thức coi như bị thiếu. Lưu ý: biểu thức có thể có nhiều thuộc tính và nhiều phép toán
 bao gồm cộng, trừ, nhân, chia.
+[python3 main.py "filename" -method=calcu-express "express" newcol "filename_out"]
+** lưu ý trong phần express không chứa dấu cách
+ex:
+    $ python3 main.py house-prices.csv -method=calcu-express 'OverallQual'+'OverallCond'*'OverallQual' newcol new_house-prices.csv
+    $ python3 main.py house-prices.csv -method=calcu-express ('OverallQual'-'OverallCond')/'OverallQual' newcol new_house-prices.csv
+    

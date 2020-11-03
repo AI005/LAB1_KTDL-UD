@@ -5,6 +5,8 @@ from collections import Counter
 import os
 from math import sqrt
 from list_temp import *
+
+
 def mean(list_data):
     return sum(list_data)/len(list_data)
 
@@ -28,17 +30,27 @@ def mode(list_data):
 def stdev(list_data):
     mu = mean(list_data)
     return sqrt(sum([(point-mu)**2 for point in list_data])/len(list_data))
+
+
 class Pandakungfu:
-    
+    #dataframe is a list of dict
+    #format: [{'col1': val1, 'col2': val2, ...},
+    #           ...
+    #          {col1': valn-1, 'col2': valn, ...}]
     def __init__(self, filename):
         inputfile = open(filename, 'r')
         self.dataframe = list(self.read_csv(inputfile))
     
-         
     def get_list_col_name(self):
         return [key for key in self.dataframe[0].keys()]
 
-
+    #return name_col of row that missing value
+    #ex: [[col1, col2], 
+    #       [], 
+    #     [col3]]
+    #mean: row0 missing value of col1,col2
+    #      row1 has no missing value
+    #      row3 missing value of col3   
     def get_list_missing_data(self):
         return [[key for key, value in row.items() if value == ''] for row in self.dataframe]
 
@@ -50,7 +62,7 @@ class Pandakungfu:
                 print('Hang ' + str(index) + ' thieu du lieu cua cac cot ' + str(keys))
 
 
-    # Chuc nang 1
+    # Chuc nang 1: return name_col missing value
     def get_list_col_less_data(self):
         list_missing_data = self.get_list_missing_data()
         result = set()
@@ -75,7 +87,7 @@ class Pandakungfu:
     
     #Write file csv from list of Dict
     def write_csv(self, filename):
-        with open('new_test.csv', 'w') as file:
+        with open(filename, 'w') as file:
             writer = csv.DictWriter(file,fieldnames=self.get_list_col_name())
             writer.writeheader()
             writer.writerows(self.dataframe)
@@ -94,14 +106,14 @@ class Pandakungfu:
         try:
             return mean([float(x) for x in self[col_name] if x != ''])
         except:
-            print("type's" + col_name + "is not numeric")
+            print("type's" + col_name + "is not numeric"+ col_name + ' has no value')
 
 
     def get_median(self, col_name):
         try:
             return median([float(x) for x in self[col_name] if x != ''])
         except:
-            print("type's" + col_name + "is not numeric")
+            print("type's" + col_name + " is not numeric or " + col_name + ' has no value')
 
 
     def get_mode(self, col_name):
@@ -140,8 +152,7 @@ class Pandakungfu:
         string_output = '\n'.join(list(map(str, self.dataframe)))
         return string_output
                 
-        
-        
+ 
     def remove_row_by_percent_missing(self, percent=0.5):
         self.dataframe = list(filter(lambda row: Counter(row.values())['']/ len(row) <= percent, self.dataframe))[:]
 
@@ -185,26 +196,31 @@ class Pandakungfu:
         except:
             print("type's" + col_name + "is not numeric")
     
+    
     def normalize_by_zcore(self, col_name):
         stdev = self.get_stdev(col_name)
         mean = self.get_mean(col_name)
         new_col = list(map(lambda a: a if a == '' else str((float(a) - mean)/stdev), self[col_name]))
         self.replace_col(col_name, new_col)
     
+    
     def append_col(self, new_col, new_col_name):
         for i in range(len(self.dataframe)):
             self.dataframe[i][new_col_name] = new_col[i]
 
+   
+   
+    #ex: 'colname1'*'colname2' => colname1*colname2 => list_temp(self[colname1])*list_temp(self[colname2]) => call eval 
     def calculate_express(self, express, new_col_name):
-        list_col_name = self.get_list_col_name()
-        #list_temp(self['so tien']*list_temp(self['mssv']))
+        #remove charater ' in express
         count = express.count("'")
-        print(list_col_name)
         express = express.replace("'", "", count)
+        
+        list_col_name = self.get_list_col_name()
         for a in list_col_name:
             if a in express:
                 rep = 'list_temp(self["' + a + '"])'
                 express = express.replace(a, 'list_temp(self["' + a + '"])')
-        print(express)
+                
         new_col = eval(express)
         self.append_col(new_col.get_data(), new_col_name)

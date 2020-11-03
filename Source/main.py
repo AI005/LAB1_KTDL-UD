@@ -4,7 +4,6 @@ import sys
 if __name__ == "__main__":
     argv = sys.argv
     args = len(argv)
-    print(argv)
     
     try:
         filename = argv[1]
@@ -83,9 +82,9 @@ if __name__ == "__main__":
         
         if method=="-method=normalize-min-max":
             df.normalize_by_minmax(option3, float(option1), float(option2))
+            df.write_csv(filename_out)
         else:
-            print("no option " + method)  
+            print("no option " + method)
+             
     else:
-        pass
-#$ python3 main.py house-prices.csv -method=calcu-express ('OverallQual'-'OverallCond')/'OverallQual' newcol new_house-prices.csv
-    print(df)
+        print("Error input")
