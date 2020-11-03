@@ -1,7 +1,6 @@
 from pandakungfu import Pandakungfu as pdf
 import sys
 
-
 if __name__ == "__main__":
     argv = sys.argv
     args = len(argv)
@@ -68,7 +67,13 @@ if __name__ == "__main__":
                 df.fill_missing_value_of_col(option2, func)
 
             df.write_csv(filename_out)
-
+            
+        # Chuc nang 8
+        elif method=='-method=calcu-express':
+            df.calculate_express(option1, option2)
+            
+            df.write_csv(filename_out)
+            
         else:
             print("no option" + method)
     elif args == 7:
@@ -82,5 +87,5 @@ if __name__ == "__main__":
             print("no option " + method)  
     else:
         pass
-    
+#$ python3 main.py house-prices.csv -method=calcu-express ('OverallQual'-'OverallCond')/'OverallQual' newcol new_house-prices.csv
     print(df)

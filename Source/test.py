@@ -22,6 +22,8 @@ list_dict = [{'mssv': '18120507', 'ten': 'Cong Phu', 'gioitinh': 'Nam', 'lop': '
 list_col_name = ['mssv', 'so tien', 'ten', 'lop']
 s = "'so tien'*'mssv'+'so tien'"
 #list_temp(self['so tien']*list_temp(self['mssv']))
+count = s.count("'")
+s = s.replace("'", "", count)
 for a in list_col_name:
     if a in s:
         rep = 'list_temp(slef["' + a + '"])'

@@ -4,7 +4,7 @@ from random import choice
 from collections import Counter
 import os
 from math import sqrt
-
+from list_temp import *
 def mean(list_data):
     return sum(list_data)/len(list_data)
 
@@ -190,6 +190,21 @@ class Pandakungfu:
         mean = self.get_mean(col_name)
         new_col = list(map(lambda a: a if a == '' else str((float(a) - mean)/stdev), self[col_name]))
         self.replace_col(col_name, new_col)
-        
-    def calculate_express(self, express):
-        pass
+    
+    def append_col(self, new_col, new_col_name):
+        for i in range(len(self.dataframe)):
+            self.dataframe[i][new_col_name] = new_col[i]
+
+    def calculate_express(self, express, new_col_name):
+        list_col_name = self.get_list_col_name()
+        #list_temp(self['so tien']*list_temp(self['mssv']))
+        count = express.count("'")
+        print(list_col_name)
+        express = express.replace("'", "", count)
+        for a in list_col_name:
+            if a in express:
+                rep = 'list_temp(self["' + a + '"])'
+                express = express.replace(a, 'list_temp(self["' + a + '"])')
+        print(express)
+        new_col = eval(express)
+        self.append_col(new_col.get_data(), new_col_name)
