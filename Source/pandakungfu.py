@@ -216,11 +216,17 @@ class Pandakungfu:
         count = express.count("'")
         express = express.replace("'", "", count)
         
+        count = express.count("[")
+        express = express.replace("[", "(", count)
+        
+        count = express.count("]")
+        express = express.replace("]", ")", count)
+        
         list_col_name = self.get_list_col_name()
         for a in list_col_name:
             if a in express:
                 rep = 'list_temp(self["' + a + '"])'
                 express = express.replace(a, 'list_temp(self["' + a + '"])')
-                
+        
         new_col = eval(express)
         self.append_col(new_col.get_data(), new_col_name)
