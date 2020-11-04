@@ -1,6 +1,7 @@
 from pandakungfu import Pandakungfu as pdf
 import sys
 
+#Read file Readme.md to know how to run Program
 if __name__ == "__main__":
     argv = sys.argv
     args = len(argv)

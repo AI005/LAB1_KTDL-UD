@@ -56,5 +56,7 @@ bao gồm cộng, trừ, nhân, chia.
 ** lưu ý trong phần express không chứa dấu cách
 ex:
     $ python3 main.py house-prices.csv -method=calcu-express 'OverallQual'+'OverallCond'*'OverallQual' newcol new_house-prices.csv
-    $ python3 main.py house-prices.csv -method=calcu-express ('OverallQual'-'OverallCond')/'OverallQual' newcol new_house-prices.csv
+    $ python3 main.py house-prices.csv -method=calcu-express ['OverallQual'-'OverallCond']/'OverallQual' newcol new_house-prices.csv
+
+    * Lưu ý: trong phần express nhập vào termial thì cặp dấu ‘( )’ đổi thành ‘[ ]”
     
